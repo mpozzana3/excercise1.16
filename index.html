@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creazione Squadre</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f7f7f7;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        input[type="number"],
+        input[type="text"] {
+            padding: 8px;
+            font-size: 16px;
+            width: 100%;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #ff007f;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        button:hover {
+            background-color: #d6006b;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        #tabellaSquadre {
+            margin-top: 40px;
+        }
+
+        @media screen and (max-width: 600px) {
+            table {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <h2>Inserisci il numero di giocatori:</h2>
+    <form id="formNumeroGiocatori">
+        <label for="numeroGiocatori">Numero Giocatori:</label>
+        <input type="number" id="numeroGiocatori" name="numeroGiocatori" required>
+        <button type="submit">Invia</button>
+    </form>
+
+    <div id="formNomiGiocatori" style="display: none;">
+        <h2>Inserisci i nomi dei giocatori:</h2>
+        <form id="formNomiGiocatoriForm"></form>
+        <button type="submit" form="formNomiGiocatoriForm">Conferma</button>
+    </div>
+
+    <div id="formNumeroSquadre" style="display: none;">
+        <h2>Inserisci il numero di squadre:</h2>
+        <form id="formNumeroSquadreForm">
+            <label for="numeroSquadre">Numero Squadre:</label>
+            <input type="number" id="numeroSquadre" name="numeroSquadre" required>
+            <button type="submit">Invia</button>
+        </form>
+    </div>
+
+    <div id="tabellaSquadre" style="display: none;">
+        <h2>Squadre:</h2>
+        <table id="squadreTable">
+            <!-- La tabella verrà generata dinamicamente qui -->
+        </table>
+    </div>
+
+</div>
+
+<script>
+    document.getElementById("formNumeroGiocatori").addEventListener("submit", function(event) {
+        event.preventDefault();
+        var numGiocatori = parseInt(document.getElementById("numeroGiocatori").value);
+        createPlayerNameInputs(numGiocatori);
+        document.getElementById("formNomiGiocatori").style.display = "block";
+    });
+
+    function createPlayerNameInputs(numGiocatori) {
+        var form = document.getElementById("formNomiGiocatoriForm");
+        form.innerHTML = "";
+        for (var i = 0; i < numGiocatori; i++) {
+            var label = document.createElement("label");
+            label.textContent = "Nome Giocatore " + (i + 1) + ":";
+            var input = document.createElement("input");
+            input.type = "text";
+            input.name = "nomeGiocatore" + (i + 1);
+            input.required = true;
+            form.appendChild(label);
+            form.appendChild(input);
+            form.appendChild(document.createElement("br"));
+        }
+    }
+
+    document.getElementById("formNomiGiocatoriForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+        document.getElementById("formNumeroSquadre").style.display = "block";
+    });
+
+    document.getElementById("formNumeroSquadreForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+        var numSquadre = parseInt(document.getElementById("numeroSquadre").value);
+        var nomiGiocatori = [];
+        var formNomiGiocatori = document.getElementById("formNomiGiocatoriForm");
+        for (var i = 0; i < formNomiGiocatori.length; i++) {
+            if (formNomiGiocatori[i].type === "text") {
+                nomiGiocatori.push(formNomiGiocatori[i].value);
+            }
+        }
+        createTeamsTable(numSquadre, nomiGiocatori);
+        document.getElementById("tabellaSquadre").style.display = "block";
+    });
+
+    function createTeamsTable(numSquadre, nomiGiocatori) {
+        var table = document.getElementById("squadreTable");
+        table.innerHTML = ""; // Pulisce la tabella (se presente)
+
+        var numGiocatoriPerSquadra = Math.ceil(nomiGiocatori.length / numSquadre);
+        var shuffledNomiGiocatori = shuffleArray(nomiGiocatori.slice()); // Mischia i nomi dei giocatori
+
+        // Inserisce l'intestazione della tabella con i nomi delle squadre
+        var headerRow = table.insertRow();
+        headerRow.insertCell(); // Cell vuota per l'intestazione vuota
+        for (var i = 0; i < numSquadre; i++) {
+            var cell = headerRow.insertCell();
+            cell.appendChild(document.createTextNode("Squadra " + (i + 1)));
+            cell.style.backgroundColor = getRandomColor(); // Assegna un colore casuale
+        }
+
+        // Inserisce i giocatori e i nomi delle squadre
+        for (var i = 0; i < numGiocatoriPerSquadra; i++) {
+            var row = table.insertRow();
+            var cell = row.insertCell();
+            cell.appendChild(document.createTextNode("Giocatore " + (i + 1)));
+            for (var j = 0; j < numSquadre; j++) {
+                var cell = row.insertCell();
+                if (shuffledNomiGiocatori.length > 0) {
+                    var playerName = shuffledNomiGiocatori.pop();
+                    cell.appendChild(document.createTextNode(playerName));
+                }
+            }
+        }
+    }
+
+    // Funzione per mischiare un array (algoritmo di Fisher-Yates)
+    function shuffleArray(array) {
+        for (var i = array.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var temp = array[i];
+            array[i] = array[j];
+            array[j] = temp;
+        }
+        return array;
+    }
+
+    // Funzione per generare un colore casuale in esadecimale
+    function getRandomColor() {
+        var letters = '0123456789ABCDEF';
+        var color = '#';
+        for (var i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+    }
+</script>
+
+</body>
+</html>
