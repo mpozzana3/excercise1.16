@@ -1,4 +1,5 @@
-Docker Image: Team Creator This Docker image provides a simple web application for creating teams based on user input. It utilizes an Nginx web server to serve static HTML content.
+Docker Image: Team Creator 
+This Docker image provides a simple web application for creating teams based on user input. It utilizes an Nginx web server to serve static HTML content.
 
 Usage Pulling the Image You can pull the latest version of the image from Docker Hub using the following command: docker pull mpozzana3/excercise1.15
 
